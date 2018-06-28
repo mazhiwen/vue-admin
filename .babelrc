@@ -1,0 +1,11 @@
+{
+  "presets": ["env"],
+  "plugins": [
+    "transform-object-rest-spread",
+    "babel-plugin-transform-async-to-generator",
+    "babel-plugin-external-helpers",
+    "transform-runtime",
+    "jsx-v-model",
+    "transform-vue-jsx"
+  ]
+}

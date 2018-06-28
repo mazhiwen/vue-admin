@@ -1,0 +1,95 @@
+html {
+  font-size: 14px;
+}
+body {
+  background: #F0F0F0;
+  padding-top: @app-header-height;
+  min-width: 1280px;
+}
+*  {
+  box-sizing: border-box;
+  &::after,
+  &::before {
+    box-sizing: border-box;
+  }
+}
+
+.query-bar {
+  margin-bottom: 1.5rem;
+  .ivu-col {
+    // padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    label {
+      font-weight: bold;
+      margin-bottom: 0.2rem;
+      display: block;
+    }
+  }
+}
+.full-size {
+  width: 100%;
+}
+.btn-inline-box {
+  display: inline-block;
+  margin-right: 5px;
+}
+.ctrl-box{
+  margin-bottom: 10px;
+}
+.ivu-table th,.ivu-table td{
+  text-align: center;
+}
+.ivu-btn{
+  // border-radius: 0;
+}
+
+.orange-btn,.orange-btn:hover{
+  background-color:@weight-orange-color;
+  color:#fff;
+  border:none;
+}
+.my-btndefault,.my-btndefault:hover{
+  background-color:#fff;
+  color:#666;
+  border: 1px solid #DEDEDE;
+}
+.orange-btn,.my-btndefault{
+  width: 120px;
+  height:40px; 
+  font-size: 14px;
+  text-align: center;
+  cursor: pointer;
+}
+.btngroup-width .ivu-btn+.ivu-btn{
+  margin-left: 0px;
+  border-left-color:transparent;
+}
+.btngroup-width .ivu-btn-ghost:hover{
+  border-left-color:#82acff;
+}
+
+
+
+
+
+.graphwrap{
+  
+  .graphtitle-right{
+    font-size: 1rem;
+  }
+  .ivu-icon{
+    vertical-align: middle;
+  }
+}
+
+.main-num-color{
+  color: @weight-orange-color;
+}
+
+
+.ivu-table-cell{
+  .ivu-btn{
+    margin: 0 5px;
+  }
+}
+
