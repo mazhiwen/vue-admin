@@ -2,7 +2,9 @@ import Vue from 'vue';
 import axios from 'axios';
 import storageHelper from './storage-helper';
 import { prefix, iamPrefix } from 'api';
-import { authToken, authMobile,xMerchantId } from 'configs';
+import { authToken, authMobile,xMerchantId,merchantAuth } from 'configs';
+import {logOutOperate} from './logout';
+import cookie from './cookie.js';
 
 export default function axiosConfig() {
 
@@ -35,6 +37,7 @@ export default function axiosConfig() {
     config.headers[authToken] = storageHelper.getItem(authToken);
     config.headers[authMobile] = storageHelper.getItem(authMobile);
     config.headers[xMerchantId] =  storageHelper.getItem(xMerchantId);
+    config.headers[merchantAuth] =  storageHelper.getItem(merchantAuth);
 
     const input = config.url;
     // absolute remote url
@@ -45,7 +48,7 @@ export default function axiosConfig() {
 
     // current server
     else config.url = `${prefix}${input}`;
-
+    // else config.url = `http://localhost:8080/dust/api/${input}`;
     return config;
   }
 
@@ -62,12 +65,21 @@ export default function axiosConfig() {
   }
 
   function responseError(error) {
-    // console.dir(error)
     const { data } = error.response;
     const rejection = Promise.reject(data);
     const unfeedback = data.message || data.error;
     const errorMessage = getResponseError(data.status, unfeedback);
     showResponseError(errorMessage);
+    if(error.response.status=='401'&&!location.pathname.includes('/login')){
+      
+      logOutOperate();
+      setTimeout(()=>{
+        let location=window.location;
+        cookie.remove(authToken);
+        storageHelper.removeItem(authToken);
+        location.href=`${location.protocol}//${location.host}/data/login`;
+      },1000);
+    }
     return rejection;
   }
 

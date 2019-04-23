@@ -27,9 +27,7 @@ const router = new VueRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  
   auth(to, from, next);
-
   iView.LoadingBar.start();
   setTitle(to.meta.title);
   next();

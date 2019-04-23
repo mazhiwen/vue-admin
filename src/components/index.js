@@ -6,7 +6,20 @@ import ConfirmButton from './confirm-button';
 import UserSetting from './user-setting';
 import CheckCard from './check-card';
 import SendTextmsg from './send-textmsg';
-import Accesskey from './accesskey';
+import BusinessLine from './business-line';
+import CountCard from './count-card';
+import BatchCheck from './batch-check';
+import CountCardUsual from './count-card-usual';
+import CustomRsult from './custom-result';
+import MainLayout from './main-layout/main-layout.vue';
+import CheckResult from './check-result';
+import ModalProductEdit from './ModalProductEdit';
+
+import OneSingleCheck from './OneSingleCheck';
+import SingleCheckBase from './SingleCheckBase';
+import BatchCheckBasic from './BatchCheckBasic/BatchCheckBasic.vue';
+import OneSingleCheckResult from './OneSingleCheckResult/OneSingleCheckResult.vue';
+import Login from 'views/login';
 
 const components = {
   AppHeader,
@@ -19,7 +32,19 @@ const components = {
   UserSetting,
   CheckCard,
   SendTextmsg,
-  Accesskey
+  BusinessLine,
+  CountCard,
+  BatchCheck,
+  CountCardUsual,
+  CustomRsult,
+  MainLayout,
+  CheckResult,
+  ModalProductEdit,
+  OneSingleCheck,
+  SingleCheckBase,
+  BatchCheckBasic,
+  OneSingleCheckResult,
+  Login
 }
 
 const install = function(Vue, opts = {}) {

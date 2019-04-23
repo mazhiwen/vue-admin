@@ -3,7 +3,7 @@
     <Form :model="formMsg" >
       <FormItem label="">
         <Input v-model="formMsg.code" style="width:270px;">
-          <Button  slot="prepend" icon="ios-paperplane" style="width: 130px;" @click="send">点击发送验证码</Button>
+          <Button :disabled="optSendBtn" type="primary"  slot="prepend" icon="ios-paperplane" style="width: 150px;" @click="send">点击发送验证码 <span v-if="optSendBtn">{{optCount}}</span></Button>
         
         </Input>
       </FormItem>
@@ -30,11 +30,12 @@ export default {
       formMsg:{
         code:''
       },
-      loadingBtn:false
+      loadingBtn:false,
+      optCount:60,
+      optSendBtn:false
     }
   },
   mounted () {
-
   },
   methods: {
     validate(){
@@ -73,6 +74,8 @@ export default {
       
     },
     send(){
+      let interval;
+      this.optSendBtn=true;
       axios.get('v1/admin/sendOpt',{
         params:{
           timestamp:new Date().getTime(),
@@ -84,6 +87,13 @@ export default {
             this.$Notice.success({
                 title: '发送成功',
             });
+            interval=setInterval(()=>{
+              if(this.optCount--==0){
+                clearInterval(interval);
+                this.optSendBtn=false;
+                this.optCount=60;
+              }
+            },1000);
     
           }
 
@@ -92,6 +102,10 @@ export default {
         })
     },
     statusChange(status){
+      if(status){
+        this.formMsg.code='';
+      }
+
       this.$emit('status-change',status);
 
     }
@@ -102,4 +116,5 @@ export default {
 .ivu-form-item{
   margin:20px auto;
 }
+
 </style>

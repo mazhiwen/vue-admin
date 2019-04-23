@@ -2,11 +2,22 @@ import Vue from 'vue';
 import eventBus from './event-bus';
 import axiosConfig from './axios-config';
 import storageHelper from './storage-helper';
-import { appName, authMobile, authToken, xMerchantId,userPassword } from 'configs';
+import { 
+  appName, checkItemInfo,authMobile, 
+  authToken, xMerchantId,userPassword,merchantAuth 
+} from 'configs';
 import { prefix } from 'api'
 import cookie from './cookie';
+import axios from 'axios';
 import commonRequest from './commonRequest';
-import paramsFormat from './paramsFormat';
+import qs from 'qs';
+import {logOutOperate} from './logout';
+import {
+  dataFormat,
+  validator as validatorOrigin
+} from 'utility-mar';
+import copy from './copy';
+import { menusOrigin } from 'statics/menus';
 
 function setTitle(title) {
   title = title ? `${title} - ${appName}` : appName;
@@ -27,55 +38,136 @@ function repeat(item,length) {
 
 
 function logout (router) {
-  router.push({ name: 'login'});
-  storageHelper.removeItem(authToken);
-  storageHelper.removeItem(authMobile);
+  
+
+  logOutOperate();
   cookie.set('status','exit');
-  // if(window.location.href.includes('console')){
-  //   window.location.href="https://www.tianmianlab.com/user.html";
-
-  // }else{
-  //   window.location.href="https://admin-dev.wolaidai.com/dust-web/user.html";
-
-  // }
+  router.push({ name: 'login'});
+  toWebHome();
  
 }
+function toWebHome(){
+  // if(window.location.href.includes('console')){
+  if(process.env.NODE_ENV=='production'){
+    window.location.href='https://www.THECOMPANYlab.com/user.html';
+  }else{
+    window.location.href=`https://${location.hostname}/dust-web/user.html`;
 
+  }
+}
 function auth (to, from, next) {
-  // console.log(to);
-  if (!to.meta.unauth&&!storageHelper.getItem(authToken)) {
-    // if(cookie.get(authToken)){
-    //   storageHelper.setItem(authToken, cookie.get(authToken), { expire: 0.5 });
-    //   storageHelper.setItem(authMobile,  cookie.get(authMobile), { expire: 0.5 });
-    //   storageHelper.setItem(userPassword,cookie.get(userPassword), { expire: 0.5 });
-    //   storageHelper.setItem(xMerchantId, cookie.get(xMerchantId), { expire: 0.5 });
-    // }else{
+  if(resetToken()){
+    if(to.name=='login'){
+      next({name:'home'});
+    }
+  }else{
+    if(!to.meta.unauth){
       Vue.prototype.$Notice.info({
         desc: '您的会话已过期，请重新登录'
       })
+      logOutOperate();
       next({ name: 'login'});
-    // } 
+    }
   }
+}
+function resetToken(){
+  let token = cookie.get(authToken);
+  if(token){
+    storageHelper.setItem(authToken, cookie.get(authToken), { expire: 0.5 });
+    storageHelper.setItem(authMobile,  cookie.get(authMobile), { expire: 0.5 });
+    storageHelper.setItem(userPassword,cookie.get(userPassword), { expire: 0.5 });
+    storageHelper.setItem(xMerchantId, cookie.get(xMerchantId), { expire: 0.5 });
+  }else{
+    token = storageHelper.getItem(authToken);
+  }
+  return token;
 }
 
 function exportData(params, url) {
   params[authMobile] = storageHelper.getItem(authMobile)
   params[authToken] = storageHelper.getItem(authToken)
   params[xMerchantId] = storageHelper.getItem(xMerchantId)
-  let exportUrl = prefix + url
-  var temp = document.createElement("form");
-  temp.action = exportUrl
-  temp.method = "post"
-  for(let key in params) {
-    let input = document.createElement("input")
-    input.setAttribute('name',key)
-    input.setAttribute('value',params[key])
-    temp.appendChild(input)
-  }
-  document.body.appendChild(temp)
-  temp.style.display = "none"
-  temp.submit()
+  params[merchantAuth] = storageHelper.getItem(merchantAuth)
+  
+  axios.post(url,qs.stringify(params),{
+    responseType:'blob',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    useOrigin:true
+  })
+    .then((res)=> {
+      const blob = new Blob([res.data])
+      const fileName = decodeURI(res.headers['content-disposition'].split('=')[1]);
+      if ('download' in document.createElement('a')) { // 非IE下载
+        const elink = document.createElement('a')
+        elink.download = fileName
+        elink.style.display = 'none'
+        elink.href = URL.createObjectURL(blob)
+        document.body.appendChild(elink)
+        elink.click()
+        URL.revokeObjectURL(elink.href) // 释放URL 对象
+        document.body.removeChild(elink)
+      } else { // IE10+下载
+        navigator.msSaveBlob(blob, fileName)
+      }
+
+    })
 }
+
+function updateConsoleMenus(modelMenu){
+  let newMenus=copy.deepCopy(menusOrigin);
+  let modelMenuParsed={
+    label: '工作台',
+    icon:'logo-dropbox',
+    name: 'consoles',
+    children: [
+      {label: '概览',name: 'consoles.summary'},
+      {label: '查询记录',name: 'consoles.records'},
+    ]
+  };
+  modelMenu.map((value,idnex)=>{
+    modelMenuParsed.children.push(
+      {
+        label: value.name,
+        name: `consoles.custom_${value.id}`
+      }
+    );
+  });
+  newMenus.splice(1,0,modelMenuParsed);
+  // this.renderNewMenu(newMenus);
+  return newMenus;
+  
+}
+
+
+let validator=new validatorOrigin({
+  patterns:{
+    'mobile':{
+      'pattern': /^1\d{10}$/,
+      'errorMessage': '请输入正确的手机号码'
+    },
+    'liaison1':{
+      'pattern': /^1\d{10}$/,
+      'errorMessage': '请输入正确的联系人'
+    },
+    'liaison2':{
+      'pattern': /^1\d{10}$/,
+      'errorMessage': '请输入正确的联系人'
+    },
+    'liaison3':{
+      'pattern': /^1\d{10}$/,
+      'errorMessage': '请输入正确的联系人'
+    },
+  },
+  errorHandler:({desc})=>{
+    Vue.prototype.$Notice.warning({
+      title:'输入错误',
+      //msg取传入，没有取默认
+      desc
+    })
+  }
+});
 
 const utils = {
   auth,
@@ -88,7 +180,12 @@ const utils = {
   arrayToKeyMap,
   exportData,
   commonRequest,
-  paramsFormat
+  toWebHome,
+  cookie,
+  copy,
+  dataFormat,
+  updateConsoleMenus,
+  validator
 }
 
 module.exports.default = module.exports = utils

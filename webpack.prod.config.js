@@ -34,6 +34,7 @@ module.exports = merge(webpackBaseConfig, {
       href: '/'+ projectConfig.base +'/',
       // href: '/',
       inject: true,
+      favicon: './src/images/favicon.png'
     }),
   ]
 })

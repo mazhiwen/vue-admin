@@ -1,9 +1,22 @@
 import Demo from './demo';
 import dateParse from './dateParse';
 
+
+
+
+
+const getImgUrl=(params)=>{
+  return `../../../images/${params}.png`;
+}
+
+
+
+
+
 const filters = {
   Demo,
   ...dateParse,
+  getImgUrl
 }
 
 const install = function(Vue, opts = {}) {

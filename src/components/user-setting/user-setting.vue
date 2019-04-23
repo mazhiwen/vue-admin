@@ -8,19 +8,22 @@
       <div class="mainprofile" v-if="!activeItem">
         <div>
           <span>名称</span>
-          <Button type="ghost" ><span class="profilelabel">{{name}}</span> </Button>
+          <Button ><span class="profilelabel">{{name}}</span> </Button>
         </div>
         <div>
           <span>手机</span>
-          <Button type="ghost" ><span class="profilelabel">{{phone}}</span> </Button>
+          <Button ><span class="profilelabel">{{phone}}</span> </Button>
         </div>
         <div>
           <span>邮箱</span>
-          <Button type="ghost" ><span class="profilelabel">{{mail}}</span> </Button>
+          <Button  ><span class="profilelabel">{{mail}}</span> </Button>
         </div>
         <div>
           <span>密码</span>
-          <Button type="ghost" @click="activeEdit('password')"><span class="profilelabel">{{passWord}}</span> <Icon type="chevron-right"></Icon></Button>
+          <Button  @click="activeEdit('password')">
+            <span class="profilelabel">{{'******'}}</span> 
+            <Icon type="chevron-right"></Icon>
+          </Button>
         </div>
       </div>
       <Form ref="userEditForm" v-if="activeItem" :model="userEditForm" :rules="changeValidate" label-position="right" :label-width="112">
@@ -35,20 +38,21 @@
           <Input icon="close-circled" @on-click="userEditForm.mail=''" v-model="userEditForm.mail" placeholder=""></Input>
         </FormItem>
         <template v-if="activeItem=='password'">
-          <FormItem label="密码" prop="oldPassword">
-            <Input type="password" icon="close-circled" @on-click="userEditForm.oldPassword=''" v-model="userEditForm.oldPassword" placeholder=""></Input>
+          <FormItem class="" label="密码" prop="oldPassword">
+            <!--<Input type="password" icon="close-circled" @on-click="userEditForm.oldPassword=''" v-model="userEditForm.oldPassword" placeholder=""></Input>-->
+            <Input type="text" class="pwd-style" @on-click="userEditForm.oldPassword=''" icon="close-circled" v-model="userEditForm.oldPassword" placeholder=""></Input>
           </FormItem>
           <FormItem label="新密码" prop="newPassword">
-            <Input type="password" v-model="userEditForm.newPassword" placeholder=""></Input>
+            <Input class="pwd-style" type="text" v-model="userEditForm.newPassword" placeholder=""></Input>
           </FormItem>
           <FormItem label="确认新密码" prop="newPasswordConfirm">
-            <Input type="password" v-model="userEditForm.newPasswordConfirm" placeholder=""></Input>
+            <Input class="pwd-style" type="text" v-model="userEditForm.newPasswordConfirm" placeholder=""></Input>
           </FormItem>
         </template>
         <FormItem  :label="activeItem=='phone'?'旧手机':'手机'"  prop="mobile">
           <Input v-model="showMobile" readonly>
             <div slot="append">
-              <Button style="cursor:pointer;width: 100px;text-align:center;overflow:hidden;" :loading="optLoading" @click="getVerificationCode">
+              <Button type="primary" style="cursor:pointer;width: 100px;text-align:center;overflow:hidden;" :loading="optLoading" @click="getVerificationCode">
                 <span v-if="!optLoading">获取验证码</span>
                 <span v-else>{{optCount}}</span>
               </Button>
@@ -63,8 +67,8 @@
 
       <div slot="footer" class="modalfooter">
         <template v-if="activeItem">
-          <Button type="ghost" @click="cancelEdit">取消</Button>
-          <Button type="ghost" @click="submit" :loading="submitLoading">确定修改</Button>
+          <Button  @click="cancelEdit">取消</Button>
+          <Button  @click="submit" :loading="submitLoading">确定修改</Button>
         </template>
         
       </div>
@@ -101,6 +105,9 @@ export default {
         let num=this.userEditForm.mobile;
         return num.slice(0,3)+'****'+num.slice(7);
       }
+    },
+    showOldPassword:function(){
+      return this.userEditForm.oldPassword.replace(/\S/g,'*');
     }
 
   },
@@ -174,10 +181,20 @@ export default {
   },
   watch:{
     modalStatus: function(newVal) {
-      // this.$refs['changeForm'].resetFields();
+
     }
   },
+  
   methods: {
+    oldPassChange(e){
+      // console.log(e.target.value.length);
+      // if(e.target.value.length>1){
+      //   e.target.type='password';
+      // }else{
+      //   e.target.type='text';
+      // }
+      
+    },  
     errorHanler(error) {
       this.error = error.message || error.error;
     },
@@ -192,10 +209,11 @@ export default {
     },
     getVerificationCode(){
       this.optLoading=true;
-      var interval;
+      let interval;
       axios.get('v1/admin/sendOpt',{params:{
-          mobile:this.userEditForm.mobile,
-          timestamp:new Date().getTime()
+          // mobile:this.userEditForm.mobile,
+          timestamp:new Date().getTime(),
+          otpType:'password'
         }})
         .then(res=>{
             this.$Notice.success({
@@ -220,15 +238,17 @@ export default {
       let sendData={
         mobile:data.mobile,
         otp:data.otp,
+        otpType:'password'
       };
       
-      if(this.activeItem=='name'){
+      // if(this.activeItem=='name'){
 
-      }else if(this.activeItem=='phone'){
+      // }else if(this.activeItem=='phone'){
 
-      }else if(this.activeItem=='email'){
+      // }else if(this.activeItem=='email'){
 
-      }else if(this.activeItem=='password'){
+      // }else 
+      if(this.activeItem=='password'){
         sendData.oldPassword=data.oldPassword;
         sendData.password=data.newPassword;
       }
@@ -300,33 +320,32 @@ export default {
 <style lang="less" scoped>
 .mainprofile{
   text-align: center;
-  
-}
-.mainprofile>div{
-  
-  text-align: left;
-  margin-bottom: 24px;
-  >span{
-    margin-right: 20px;
-    width: 25%;
-    display: inline-block;
-    text-align: right;
-  }
-  .ivu-icon{
-    float: right;
-    line-height: 20px;
-  }
-  .ivu-btn,.ivu-input-wrapper{
-    border-radius: 0;
-    width: 50%;
+  >div{
+    
     text-align: left;
-  }
-  .profilelabel{
-    width: 80%;
-    display: inline-block;
-  }
-  .ivu-input-group{
-    display: inline-table;
+    margin-bottom: 24px;
+    >span{
+      margin-right: 20px;
+      width: 25%;
+      display: inline-block;
+      text-align: right;
+    }
+    .ivu-icon{
+      float: right;
+      line-height: 20px;
+    }
+    .ivu-btn,.ivu-input-wrapper{
+      border-radius: 0;
+      width: 50%;
+      text-align: left;
+    }
+    .profilelabel{
+      width: 80%;
+      display: inline-block;
+    }
+    .ivu-input-group{
+      display: inline-table;
+    }
   }
 }
 .modalfooter{
@@ -334,6 +353,20 @@ export default {
   .ivu-btn{
   }
 }
+// .oldpwdwrap{
+
+//   .ivu-form-item-content{
+//     position:relative;
+//   }
+
+//   .oldpwdlayer{
+//     position: absolute;
+//     top: 0;
+//     opacity: 0;
+//   }
+// }
+
+
 
 </style>
 

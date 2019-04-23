@@ -1,4 +1,4 @@
 export default {
-  prefix: 'https://api/',
-  iamPrefix: 'https://api.com:9002/'
+  prefix: 'https://japi-uat.THECOMPANY.com/project/api/',
+  iamPrefix: 'https://japi-uat.THECOMPANY.com:9002/'
 };

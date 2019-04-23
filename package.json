@@ -1,8 +1,11 @@
 {
-  "name": "admin",
+  "name": "data",
+  "THECOMPANY": {
+    "contextPath": "data"
+  },
   "version": "1.0.0",
   "license": "MIT",
-  "description": "admin",
+  "description": "lender-finance-web",
   "main": "index.js",
   "private": true,
   "scripts": {
@@ -14,12 +17,18 @@
   },
   "dependencies": {
     "axios": "^0.17.0",
-    "iview": "^2.7.2",
+    "big.js": "^5.1.2",
+    "dom-to-image": "^2.6.0",
+    "file-saver": "^1.3.8",
+    "iview": "^3.3.0",
     "lodash": "^4.17.4",
+    "qs": "^6.5.2",
+    "utility-mar": "^1.0.10",
     "vue": "^2.2.6",
     "vue-echarts": "^2.5.1",
     "vue-moment": "^3.1.0",
     "vue-router": "^2.2.1",
+    "vuedraggable": "^2.19.1",
     "vuex": "^3.0.1"
   },
   "devDependencies": {

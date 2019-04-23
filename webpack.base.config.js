@@ -81,6 +81,7 @@ module.exports = {
       'views': path.resolve(__dirname, 'src/views'),
       'images': path.resolve(__dirname, 'src/images'),
       'styles': path.resolve(__dirname, 'src/styles'),
+      'store': path.resolve(__dirname, 'src/store'),
       'routers': path.resolve(__dirname, 'src/routers'),
       'statics': path.resolve(__dirname, 'src/statics'),
       'configs': path.resolve(__dirname, 'src/configs'),

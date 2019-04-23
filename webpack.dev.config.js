@@ -6,7 +6,9 @@ const webpackBaseConfig = require('./webpack.base.config.js');
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 module.exports = merge(webpackBaseConfig, {
+  // eval-source-map is faster for development
   // devtool: '#source-map',
+  devtool: '#eval-source-map',
   output: {
     publicPath: '/',
     filename: '[name].js',
@@ -16,7 +18,7 @@ module.exports = merge(webpackBaseConfig, {
     historyApiFallback: true,
     contentBase: './src',
     host: '0.0.0.0',
-    port: 8811,
+    port: 8812,
     hot: true,
     open: false,
     overlay: {
@@ -26,7 +28,7 @@ module.exports = merge(webpackBaseConfig, {
   },
   plugins: [
     new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify('master'),
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
       __DEV__: true
     }),
     new ExtractTextPlugin({
@@ -39,9 +41,9 @@ module.exports = merge(webpackBaseConfig, {
     // }),
     new HtmlWebpackPlugin({
       template: './src/index.ejs',
-      favicon: './src/images/favicon.png',
       href: '/',
       inject: true,
+      favicon: './src/images/favicon.png'
     }),
     new webpack.HotModuleReplacementPlugin(),
     // new BundleAnalyzerPlugin({

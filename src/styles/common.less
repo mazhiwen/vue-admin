@@ -4,7 +4,8 @@ html {
 body {
   background: #F0F0F0;
   padding-top: @app-header-height;
-  min-width: 1280px;
+  
+  font-size: 14px;
 }
 *  {
   box-sizing: border-box;
@@ -13,7 +14,11 @@ body {
     box-sizing: border-box;
   }
 }
-
+.flex{
+  align-items: center;
+  justify-content: center;
+  display: flex;
+}
 .query-bar {
   margin-bottom: 1.5rem;
   .ivu-col {
@@ -40,7 +45,7 @@ body {
   text-align: center;
 }
 .ivu-btn{
-  // border-radius: 0;
+  
 }
 
 .orange-btn,.orange-btn:hover{
@@ -67,7 +72,10 @@ body {
 .btngroup-width .ivu-btn-ghost:hover{
   border-left-color:#82acff;
 }
-
+.ivu-icon{
+  vertical-align: middle;
+  cursor: pointer;
+}
 
 
 
@@ -79,7 +87,21 @@ body {
   }
   .ivu-icon{
     vertical-align: middle;
+    cursor: pointer;
   }
+  .change-btn-wrap{
+    display: inline-block;
+    margin-right: 20px;
+  }
+  .ivu-card-body{
+    height:332px;
+  }
+  .graphwrap_mainnum{
+    font-size: 3rem;
+    margin:0 10px;
+    color:#111111;
+  }
+
 }
 
 .main-num-color{
@@ -87,9 +109,88 @@ body {
 }
 
 
-.ivu-table-cell{
-  .ivu-btn{
-    margin: 0 5px;
+.pwd-style{
+  
+
+  .ivu-input{
+    
+    text-security:disc;
+    -webkit-text-security:disc;
+    -mox-text-security:disc;
+  }
+  
+}
+
+
+.report-table{
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 2rem;
+  caption{
+    text-align: left;
+    font-weight: bold;
+    margin-bottom: 5px;
+    font-size: 1.1rem;
+  }
+  th,td{
+    border: 1px solid #e9e9e9;
+    width: 200px;
+    padding:.8rem;
+  }
+}
+.report-card{
+  margin: auto;
+  .ivu-card-body{
+    overflow: hidden;
+  }
+  .report-head{
+    display: flex;
+    justify-content:space-around;
+    align-items: center;
+    
+  }
+  .report-box{
+
+    width: 75%;
+    margin:50px auto;
   }
 }
 
+.up-down{
+  .ivu-btn{
+    padding-left: 3rem;
+    padding-right: 3rem;
+  }
+  padding: 33px 0;
+}
+
+.ivu-form-inline {
+  .ivu-form-item{
+    vertical-align: bottom;
+  }
+}
+
+.echarts{
+  height: 300px !important;
+}
+
+.ivu-upload-list{
+  margin-top: 0;
+}
+
+.infomodal_wrap{
+  >p{
+
+  }
+  strong{
+    width: 60px;
+    display: inline-block;
+    text-align: right;
+    margin:1px 10px 1px 0;
+  }
+}
+
+.red_font{
+  color:red;
+  font-size:30px;
+}

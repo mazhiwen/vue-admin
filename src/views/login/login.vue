@@ -26,8 +26,16 @@
 
 <script>
 import axios from 'axios';
-import { storageHelper } from 'utils';
-import { appName, authToken, authMobile,xMerchantId,userPassword ,checkItemInfo} from 'configs';
+import { storageHelper ,cookie,copy} from 'utils';
+import { 
+  appName, authToken, authMobile,xMerchantId,userPassword ,
+  checkItemInfo,merchantAuth
+} from 'configs';
+import { menusOrigin } from 'statics/menus';
+import {
+  SetMenus
+} from 'store/mutation-types.js'
+import {mapMutations} from 'vuex';
 
 export default {
 
@@ -54,6 +62,9 @@ export default {
 
   },
   methods: {
+    ...mapMutations([
+      SetMenus 
+    ]),
     errorHanler(error) {
       this.error = error.message || error.error;
     },
@@ -69,14 +80,15 @@ export default {
     },
     
     login() {
-      
+      cookie.remove(authToken)
       this.setSubmitState(true);
-      axios.post('v1/admin/login', {...this.userForm,userType:'admins'}, { useOrigin: true })
+      axios.post('v1/admin/login', {...this.userForm,userType:'merchant'}, { useOrigin: true })
         .then((res) => {
           storageHelper.setItem(authToken, res.data.data['token'], { expire: 0.5 });
           storageHelper.setItem(authMobile,  this.userForm.username, { expire: 0.5 });
           storageHelper.setItem(userPassword,  this.userForm.password, { expire: 0.5 });
-          storageHelper.setItem(xMerchantId, '88888888', { expire: 0.5 });
+          storageHelper.setItem(xMerchantId, res.data.data['merchantId'], { expire: 0.5 });
+          storageHelper.setItem(merchantAuth, res.data.data['merchantAuth'], { expire: 0.5 });
           this.setSubmitState(true);
           this.$router.push({ name: 'home'});
           
@@ -85,7 +97,8 @@ export default {
           this.setSubmitState(false);
           this.errorHanler(error);
         })
-    }
+    },
+    
   }
 
 };

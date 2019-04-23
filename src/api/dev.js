@@ -1,3 +1,4 @@
 export default {
-  prefix: 'http://localhost:3000/api/'
+  prefix: 'https://japi-fat.THECOMPANY.com/dust/api/',
+  iamPrefix: 'https://japi-fat.THECOMPANY.com:9002/'
 };

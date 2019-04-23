@@ -1,6 +1,6 @@
 /*
 *
-* Welab 公共验证枚举
+* THECOMPANY 公共验证枚举
 * @rachel
 */
 const regs = {

@@ -1,3 +1,4 @@
 export default {
-  prefix: 'https://api.mazhiwen.com/api/'
+  prefix: 'https://japi-fat.THECOMPANY.com/dust/api/',
+  iamPrefix: 'https://japi-fat.THECOMPANY.com:9002/'
 };

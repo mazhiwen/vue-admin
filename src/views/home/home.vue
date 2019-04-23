@@ -1,343 +1,364 @@
 <template>
-  <div class="app home-page">
-    <app-header></app-header>
-    <app-view>
-      <app-sidebar>
-        <app-menu class="app-menu" mode="vertical" theme="light" :menus="menus"></app-menu>
-      </app-sidebar>
-      <app-content>
-        <Card>
-          <Row>
-            选择日期 
-            <DatePicker :clearable="false" v-model="dateRange" type="daterange" placement="bottom-end" placeholder="Select date" style="width: 200px"></DatePicker> <Button type="primary" @click="search">查询</Button>
-          </Row>
-          <br>
-          <Row>
-            <Col span="10">
-              <chart :options="probablyPieOpt" ref="probablypie" auto-resize></chart>
-            </Col>
-            <Col span="14">
-              <chart :options="callCountLineOpt" ref="callCountLine" auto-resize></chart>
+<div>
+  <Row :gutter="14">
+    <Col span="12" style="margin-bottom:14px">
+      <count-card 
+        id="test1"  title="今日费用概览" :isSwitch="true" 
+        @refresh="refreshProbably" :fillData="probablyTime"
+      >
+        <chart :options="probablyPieOpt" ref="probablypie" auto-resize></chart>
+      </count-card>
+    </Col>
+    <Col span="12" style="margin-bottom:14px">
+      <count-card id="test2" title="卫验分" :txtverb="weiyanCard.txt" :isSwitch="true" @refresh="refreshWeiyan" :fillData="weiyanCard.data" ></count-card>
+    </Col>
+  </Row>  
+  <Row :gutter="14">  
+    <Col span="12" style="margin-bottom:14px">
+      <count-card id="test3" title="风险核查" :txtverb="riskCheckCard.txt" :isSwitch="true" @refresh="refreshRiskCheck" :fillData="riskCheckCard.data" ></count-card>
+    </Col>
+    <Col span="12" style="margin-bottom:14px">
+      <count-card id="test4" title="信用评分" :txtverb="creditScoreCard.txt" :isSwitch="true" @refresh="refreshCreditScore" :fillData="creditScoreCard.data" ></count-card>
+    </Col>
+  </Row>
+  <Row :gutter="14">  
+    <Col span="12" style="margin-bottom:14px">
+      <count-card title="风控报告" :txtverb="riskReport.txt" :isSwitch="true" @refresh="refreshReport" :fillData="riskReport.data" ></count-card>
+    </Col>
+    <Col span="12" style="margin-bottom:14px">
+      <count-card title="车辆信息" :txtverb="car.txt" :isSwitch="true" @refresh="refreshCar" :fillData="car.data" ></count-card>
+    </Col>
+  </Row>
+  <Row :gutter="14">  
+    <Col span="12" style="margin-bottom:14px">
+      <count-card title="人工智能" :txtverb="ai.txt" :isSwitch="true" @refresh="refreshAI" :fillData="ai.data" ></count-card>
+    </Col>
+  </Row>
+</div>      
 
-            </Col>
-          </Row>
-          <br>
-          <Table :loading="tableLoading" :columns="columns1" :data="data1"></Table>
-        </Card>
-      </app-content>
-    </app-view>
-  </div>
 </template>
 
 <script>
-import { menus } from 'statics/menus';
 import ECharts from 'vue-echarts';
 import axios from 'axios';
-import { msToDate } from 'filters'
 import {commonRequest } from 'utils';
+import {mapState,mapMutations} from 'vuex';
 
-  export default {
-    data() {
-      return {
-        menus,
-        probablyPieOpt:{
-          title: {
-            text: ' ',
-            x: 'center'
-          },
-          tooltip: {
-            trigger: 'item',
-            formatter: '{a} <br/>{b} : {c} ({d}%)'
-          },
-          legend: {
-            orient: 'vertical',
-            left: 'left',
-            
-            data: ['风险人员', '学历', '银行卡', '联系人','三要素']
-            
-          },
-          gird:{
-            // left:1
-          },
-          series: [
-            {
-              name: '访问来源',
-              type: 'pie',
-              radius: '55%',
-              center: ['50%', '60%'],
-              data: [
-                
-              ],
-              itemStyle: {
-                emphasis: {
-                  shadowBlur: 10,
-                  shadowOffsetX: 0,
-                  shadowColor: 'rgba(0, 0, 0, 0.5)'
-                }
-              }
-            }
-          ]
+export default {
+  data() {
+    return {
+      probablyPieOpt:{
+        title: {
+          text: ' ',
+          x: 'center'
         },
-        
-        callCountLineOpt :{
-            title : {
-                text : '总计',
-                subtext : ' '
-            },
-            tooltip : {
-                trigger: 'item',
-                formatter : function (params) {
-                    var data;
-                    var date = new Date(params.data[0]);
-                    data = date.getFullYear() + '-'
-                          + (date.getMonth() + 1) + '-'
-                          + date.getDate() + ' '
-                          // + date.getHours() + ':'
-                          // + date.getMinutes()
-                          ;
-                    return '项目: '+params.seriesName+' <br/>'
-                          +'日期: '+data + '<br/>'
-                          +'计数: '+params.data[1] ;
-                }
-            },
-            toolbox: {
-                show : false,
-                feature : {
-                    mark : {show: true},
-                    dataView : {show: true, readOnly: false},
-                    restore : {show: true},
-                    saveAsImage : {show: true}
-                }
-            },
-            dataZoom: {
-                show: true,
-                start : 0
-            },
-            legend : {
-                data : ['银行','联系人']
-            },
-            grid: {
-                y2: 80
-            },
-            xAxis : [
-                {
-                    type : 'time',
-                    splitNumber:10,
-                    minInterval:1000*60*60*24
-                }
+        tooltip: {
+          // show:false,
+          trigger: 'item',
+          formatter: '{a} <br/>{b} : {c} ({d}%)'
+        },
+        legend: {
+          
+          orient: 'vertical',
+          left: 'left',
+          data: ['身份信息评估', '学历评估', '银行卡评估', '联系人评估']
+        },
+        series: [
+          {
+            name: '项目',
+            type: 'pie',
+            radius: '55%',
+            center: ['50%', '60%'],
+            data: [
+              {value: 335, name: '身份信息评估'},
+              {value: 310, name: '学历评估'},
+              {value: 234, name: '银行卡评估'},
+              {value: 135, name: '联系人评估'}
             ],
-            yAxis : [
-                {
-                    type : 'value'
-                }
-            ],
-            series : [
-                {
-                    name: 'series1',
-                    type: 'line',
-                    showAllSymbol: true,
-                    symbolSize: function (value){
-                        return Math.round(value[2]/10) + 2;
-                    },
-                    data: [[]]
-                    // (function () {
-                    //     var d = [];
-                    //     var len = 0;
-                    //     var now = new Date();
-                    //     var value;
-                    //     while (len++ < 200) {
-                    //         d.push([
-                    //             new Date(2014, 9, 1, 0, len * 10000),
-                    //             (Math.random()*30).toFixed(2) - 0,
-                    //             (Math.random()*100).toFixed(2) - 0
-                    //         ]);
-                    //     }
-                    //     return d;
-                    // })()
-                }
-            ]
-        },
-                    
-        testaaa:'dsada',
-        probablyTime:new Date().getTime(),
-        allTime:new Date().getTime(),
-        allNumToday:null,
-        allNumMonth:null,
-        columns1: [
-            {
-                type: 'index' 
-            },
-            {
-                title: '服务名称',
-                key: 'typeName'
-            },
-            {
-                title: '调用次数',
-                key: 'invokCcount'
-            },
-            {
-                title: '成功次数',
-                key: 'successCont'
-            },
-            {
-                title: '查得次数',
-                key: 'getCount'
-            },
-            {
-                title: '调用第三方次数',
-                key: 'thirdCount'
-            }
-        ],
-        data1: [],
-        dateRange:[new Date(new Date()-1000*60*60*24*30), new Date()],
-        tableLoading:false,
-        businessType:{
-          // 'bankcardCheck':'银行',
-          // 'liaisonCheck':'联系人',
-          // 'riskCheckPerson':'风险',
-          // 'threeItems':'三要素',
-          // 'degreeCheck':'学历'
-        },
-        checkItemInfoList:[],
-        // businessTypeArr:[]
-        businessValue:[]
-     
-      }
-    },
-    components: {
-      chart: ECharts,
-    },
-    mounted:function(){
-      commonRequest.getCheckItemObj().then(({businessType,checkItemInfoList,businessValue})=>{
-        console.log(businessType);
-        this.businessValue=businessValue;
-        this.businessType=businessType;
-        this.checkItemInfoList=checkItemInfoList;
-      })
-      // commonRequest.getCheckItemInfo().then((res)=>{
-      //   let businessType={};
-      //   res.forEach((v,k)=>{
-      //     businessType[v.type]=v.name;
-      //   });
-      //   this.businessType=businessType;
-      //   this.checkItemInfoList=res;
-      // });
-      this.search();
-    },
-    methods:{
-      search(){
-        let params={
-          starTime:msToDate(this.dateRange[0]),
-          endTime:msToDate(this.dateRange[1])
-        }
-        let probablyPie=this.$refs.probablypie;
-        probablyPie.showLoading({});
-        axios.post('v1/consume_transaction/probably_spend_admin',params)
-          .then(res=>{
-            let data=res['data'];
-            const businessType=this.businessType;
-            let pieData={
-              series:[
-                {data:[
-                  {value:  data.riskPersonCount, name: businessType['riskCheckPerson']},
-                  {value: data.degreeCount, name: businessType['degreeCheck']},
-                  {value: data.bankCardCount, name: businessType['bankcardCheck']},
-                  {value: data.liaisonsCount, name: businessType['liaisonCheck']},
-                  {value: data.threeItemCount, name: businessType['threeItems']}
-                ]}
-              ],
-              legend:{
-                data:this.businessValue
+            itemStyle: {
+              emphasis: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: 'rgba(0, 0, 0, 0.5)'
               }
-
             }
-            probablyPie.hideLoading();
-            probablyPie.mergeOptions(pieData);
-
-          })
-        this.tableLoading=true;  
-        axios.post('v1/consume_transaction/invoke_list',params)
-          .then(res=>{
-            this.data1=res.data;
-          }) 
-          .finally(()=>{
-            this.tableLoading=false;
-          }) 
-
-        let callCountLine=this.$refs.callCountLine;
-        callCountLine.showLoading({});
-        axios.post('v1/consume_transaction/probably_times',params)
-          .then(res=>{
-            
-            let seriesData=[];
-            let legendData=[];
-            let emptyRes={};
-            Object.entries(this.businessType).forEach(([key,value])=>{
-              emptyRes[key]='';
-              legendData.push(value);
-            })
-            
-            let data={...emptyRes,...res['data']};
-            
-            let endDay=new Date(params.endTime).setHours(0,0,0,0);
-            
-            Object.entries(data).forEach(([key,value])=>{
-              let indexDay=new Date(params.starTime).setHours(0,0,0,0);
-              let sdata=[
-                [
-                  indexDay,
-                  0
-                ]
-              ];
-              value&&value.forEach((v,k)=>{
-                let currentDay=new Date(v['createdAt']).setHours(0,0,0,0);
-                if(indexDay < currentDay){
-                  while(indexDay < currentDay){                                        
-                    if(sdata[sdata.length-1][0]!=indexDay){
-                      sdata.push([
-                        indexDay,
-                        0
-                      ]);
-                    }                    
-                    indexDay+=86400000;                                        
-                  } 
-                  sdata.push([
-                    indexDay,
-                    v['typeCount']
-                  ]);
-                }else{
-                  sdata[sdata.length-1][1]+=v['typeCount']; 
-                }
-
-              });
-              while(indexDay < endDay){
-                indexDay+=86400000;
-                sdata.push([
-                  indexDay,
-                  0
-                ]);
-              }
-              seriesData.push({
-                name:this.businessType[key],
-                type:'line',
-                showAllSymbol: true,
-                smooth:false,
-                symbolSize: function (value){
-                    return Math.round(value[2]/10) + 2;
-                },
-                connectNulls:true,
-                data:sdata
-              });
-            });
-            callCountLine.hideLoading();
-            this.callCountLineOpt.series=seriesData;
-            this.callCountLineOpt.legend.data=legendData;
-
-          })
+          }
+        ]
       },
+      
+      
+      
+      probablyTime:{
 
+      },
+      weiyanCard:{
+        txt:'',
+        data:{
+
+        }
+      },
+      riskCheckCard:{
+        txt:'',
+        data:{
+
+        }
+      },
+      riskReport:{
+        txt:'',
+        data:{
+
+        }
+      },
+      car:{
+        txt:'',
+        data:{
+
+        }
+      },
+      ai:{
+        txt:'',
+        data:{
+
+        }
+      },
+      creditScoreCard:{
+        txt:'',
+        data:{
+
+        }
+      },
+      
       
 
     }
+  },
+  computed:{
+    ...mapState({
+      storeConfigData:state=>state.configData.data,
+    }),
+  },
+  components: {
+    chart: ECharts
+  },
+  mounted:function(){
+    
+    
+    
+    
+  },
+  methods:{
+
+    refreshProbably(type){
+      let probablyPie=this.$refs.probablypie;
+      probablyPie.showLoading({});
+      let urlTail='';
+      let getKey='';
+      if(type=='cost'){
+        urlTail='consume_transaction/probably_spend';
+        getKey='amount';
+      }else{
+        urlTail='loan_applications/probably_num?parentType=';
+        getKey='dayCount';
+      }
+      axios.get('v1/'+urlTail,{})
+        .then(res=>{
+          let businessTypeColor=this.storeConfigData.checkItemInfo.businessTypeColor;
+          let businessType=this.storeConfigData.checkItemInfo.businessType;
+          let data=res['data'];
+          this.probablyTime={
+            getDataTime:data.getDataTime
+          };
+          let pieData={};
+          let seriesData=[];
+          let legendData=[];
+          let colorData=[];
+          data.statNumVOList.forEach((value,index)=>{
+            seriesData.push({
+              value:value[getKey],
+              name:businessType[value.type]
+            });
+            legendData.push(businessType[value.type]);
+            
+            colorData.push(businessTypeColor[value.type]);
+          });
+          pieData={
+            color:colorData,
+            series:[{
+              data:seriesData
+            }],
+            legend:{
+              data:legendData
+            }
+          }            
+          probablyPie.hideLoading();
+          probablyPie.mergeOptions(pieData);
+
+        })
+    },
+    refreshWeiyan(type){
+      let urlTail='';
+      if(type=='cost'){
+        urlTail=`consume_transaction/spend_total_business?parentType=validate`;
+      }else{
+        urlTail=`loan_applications/all_num?parentType=validate`;
+      }
+      axios.get('v1/'+urlTail,{})
+        .then(res=>{
+          let data=res['data'];
+          if(type=='cost'){
+            this.weiyanCard.txt='费用';
+            this.weiyanCard.data={
+              dayCount:`¥ ${(data.totalSpendDay?data.totalSpendDay:0)}`,
+              monthCount:` ¥ ${data.totalSpendMonth||0}`
+            }            
+          }else{
+            this.weiyanCard.txt='次数';
+            this.weiyanCard.data={
+              dayCount:`${data.dayCount} 次`,
+              monthCount:`${data.monthCount} 次`
+            }             
+          }
+          this.weiyanCard.data.getDataTime=data.getDataTime;
+
+        })
+    },
+    refreshRiskCheck(type){
+      let urlTail='';
+      if(type=='cost'){
+        urlTail=`consume_transaction/spend_total_business?parentType=risk`;
+      }else{
+        urlTail=`loan_applications/all_num?parentType=risk`;
+      }
+      axios.get('v1/'+urlTail,{})
+        .then(res=>{
+          let data=res['data'];
+          if(type=='cost'){
+            this.riskCheckCard.txt='费用';
+            this.riskCheckCard.data={
+              dayCount:`¥ ${(data.totalSpendDay?data.totalSpendDay:0)}`,
+              monthCount:` ¥ ${data.totalSpendMonth||0}`
+            }            
+          }else{
+            this.riskCheckCard.txt='次数';
+            this.riskCheckCard.data={
+              dayCount:`${data.dayCount} 次`,
+              monthCount:`${data.monthCount} 次`
+            }             
+          }
+          this.riskCheckCard.data.getDataTime=data.getDataTime;
+
+        })
+    },
+    refreshReport(type){
+      let urlTail='';
+      if(type=='cost'){
+        urlTail=`consume_transaction/spend_total_business?parentType=riskReport`;
+      }else{
+        urlTail=`loan_applications/all_num?parentType=riskReport`;
+      }
+      axios.get('v1/'+urlTail,{})
+        .then(res=>{
+          let data=res['data'];
+          if(type=='cost'){
+            this.riskReport.txt='费用';
+            this.riskReport.data={
+              dayCount:`¥ ${(data.totalSpendDay?data.totalSpendDay:0)}`,
+              monthCount:` ¥ ${data.totalSpendMonth||0}`
+            }            
+          }else{
+            this.riskReport.txt='次数';
+            this.riskReport.data={
+              dayCount:`${data.dayCount} 次`,
+              monthCount:`${data.monthCount} 次`
+            }             
+          }
+          this.riskReport.data.getDataTime=data.getDataTime;
+
+        })
+    },
+    refreshCar(type){
+      let urlTail='';
+      if(type=='cost'){
+        urlTail=`consume_transaction/spend_total_business?parentType=car`;
+      }else{
+        urlTail=`loan_applications/all_num?parentType=car`;
+      }
+      axios.get('v1/'+urlTail,{})
+        .then(res=>{
+          let data=res['data'];
+          if(type=='cost'){
+            this.car.txt='费用';
+            this.car.data={
+              dayCount:`¥ ${(data.totalSpendDay?data.totalSpendDay:0)}`,
+              monthCount:` ¥ ${data.totalSpendMonth||0}`
+            }            
+          }else{
+            this.car.txt='次数';
+            this.car.data={
+              dayCount:`${data.dayCount} 次`,
+              monthCount:`${data.monthCount} 次`
+            }             
+          }
+          this.car.data.getDataTime=data.getDataTime;
+
+        })
+    },
+    refreshAI(type){
+      let urlTail='';
+      if(type=='cost'){
+        urlTail=`consume_transaction/spend_total_business?parentType=ai`;
+      }else{
+        urlTail=`loan_applications/all_num?parentType=ai`;
+      }
+      axios.get('v1/'+urlTail,{})
+        .then(res=>{
+          let data=res['data'];
+          if(type=='cost'){
+            this.ai.txt='费用';
+            this.ai.data={
+              dayCount:`¥ ${(data.totalSpendDay?data.totalSpendDay:0)}`,
+              monthCount:` ¥ ${data.totalSpendMonth||0}`
+            }            
+          }else{
+            this.ai.txt='次数';
+            this.ai.data={
+              dayCount:`${data.dayCount} 次`,
+              monthCount:`${data.monthCount} 次`
+            }             
+          }
+          this.ai.data.getDataTime=data.getDataTime;
+
+        })
+    },
+    refreshCreditScore(type){
+      let urlTail='';
+      if(type=='cost'){
+        urlTail=`consume_transaction/spend_total_business?parentType=creditscore`;
+      }else{
+        urlTail=`loan_applications/all_num?parentType=creditscore`;
+      }
+      axios.get('v1/'+urlTail,{})
+        .then(res=>{
+          let data=res['data'];
+          if(type=='cost'){
+            this.creditScoreCard.txt='费用';
+            this.creditScoreCard.data={
+              dayCount:`¥ ${(data.totalSpendDay?data.totalSpendDay:0)}`,
+              monthCount:` ¥ ${data.totalSpendMonth||0}`
+            }            
+          }else{
+            this.creditScoreCard.txt='次数';
+            this.creditScoreCard.data={
+              dayCount:`${data.dayCount} 次`,
+              monthCount:`${data.monthCount} 次`
+            }             
+          }
+          this.creditScoreCard.data.getDataTime=data.getDataTime;
+
+        })
+    }
+    
+
   }
+}
 </script>

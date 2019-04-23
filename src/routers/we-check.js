@@ -15,11 +15,6 @@ const routers = [{
     meta: {title: '身份信息评估'},
     component: resolve => require(['views/we-check/three-elements-check'], resolve)
   },{
-    name: 'we-check.education-check',
-    path: 'education-check',
-    meta: {title: '学历评估'},
-    component: resolve => require(['views/we-check/education-check'], resolve)
-  },{
     name: 'we-check.bankcard-check',
     path: 'bankcard-check',
     meta: {title: '银行卡评估'},
@@ -29,7 +24,18 @@ const routers = [{
     path: 'contacts-check',
     meta: {title: '联系人评估'},
     component: resolve => require(['views/we-check/contacts-check'], resolve)
+  },{
+    name: 'we-check.mobilestatus',
+    path: 'mobilestatus',
+    meta: {title: '手机在网状态'},
+    component: resolve => require(['views/we-check/mobilestatus'], resolve)
+  },{
+    name: 'we-check.mobiletime',
+    path: 'mobiletime',
+    meta: {title: '手机在网时长'},
+    component: resolve => require(['views/we-check/mobiletime'], resolve)
   }],
+  
 }]
 
 export default routers

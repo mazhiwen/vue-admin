@@ -4,8 +4,12 @@
 install yarn and then
 
 yarn
+
+export NODE_ENV=integration
 yarn run dev
 NODE_ENV=$BRANCH yarn run build
+
+
 
 finaly all scripts in package.json file
 ```
@@ -125,3 +129,14 @@ module.exports = {
   }
 }
 ```
+
+
+
+## 访问地址
+生产：https://console.THECOMPANYlab.com/wolaiyan/home 
+13051660617 123456
+测试 :https://admin-dev.THECOMPANY.com/data/home
+
+swagger ：
+
+https://japi-fat.THECOMPANY.com/dust/api/swagger-ui.html#!/merchant-controller/getMerchantInfoUsingGET
